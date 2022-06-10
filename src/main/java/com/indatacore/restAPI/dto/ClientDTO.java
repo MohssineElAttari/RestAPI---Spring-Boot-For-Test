@@ -7,10 +7,17 @@ import javax.validation.constraints.Pattern;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Setter
 @Getter
 public class ClientDTO {
+
+    public ClientDTO(String email, String phone, String firstName, String lastName) {
+        this.email = email;
+        this.phone = phone;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     private long id;
 
     private String email;
