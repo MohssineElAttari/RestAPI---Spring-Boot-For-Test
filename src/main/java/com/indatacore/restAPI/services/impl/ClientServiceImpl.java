@@ -8,6 +8,7 @@ import com.indatacore.restAPI.repositories.ClientRepository;
 import com.indatacore.restAPI.services.IClientService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ import java.util.List;
 @Slf4j
 public class ClientServiceImpl implements IClientService {
 
+    @Value("${csv.path}")
+    private String csvPath;
+
     @Autowired
     private ClientRepository clientRepository;
 
@@ -35,6 +39,7 @@ public class ClientServiceImpl implements IClientService {
         Collection<Client> clients= clientRepository.findAll();
         return clientMappDto.convertListToListDto(clients,ClientDTO.class);
     }
+
     @Override
     public ClientDTO addClient(ClientDTO clientDTO) {
         Client clinetE = clientMappDto.convertToEntity(clientDTO,Client.class);
@@ -45,8 +50,30 @@ public class ClientServiceImpl implements IClientService {
     @EventListener(ApplicationReadyEvent.class)
     @Override
     public List<ClientDTO> getClientFromCsv() {
+        log.info("get Client From Csv");
+        String row = "";
+        List<ClientDTO> listUserDto =new ArrayList<>();
+        try {
+            //parsing a CSV file into BufferedReader class constructor
+            BufferedReader br = new BufferedReader(new FileReader(csvPath));
+            while ((row = br.readLine()) != null)
+            //returns a Boolean value
+            {
+                String[] clientCsv = row.split(";");
+                //use comma as separator
 
-        return null;
+                System.out.println("user-From-Csv=" + Arrays.toString(clientCsv));
+
+                ClientDTO csvClient=new ClientDTO(clientCsv[0],clientCsv[1],clientCsv[2],clientCsv[3]);
+                listUserDto.add(csvClient);
+            }
+        }
+        catch(IOException e) {
+            log.error("File infound");
+            e.printStackTrace();
+        }
+
+        return listUserDto;
     }
 
     //--------------------------------------Bonus--------------------------------------
